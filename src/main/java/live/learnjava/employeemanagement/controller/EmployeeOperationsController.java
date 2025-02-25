@@ -1,5 +1,7 @@
 package live.learnjava.employeemanagement.controller;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,7 +17,6 @@ import live.learnjava.employeemanagement.service.EmployeeService;
 @RequestMapping("/api/v1")
 public class EmployeeOperationsController {
 	// use service
-
 	@Autowired
 	private EmployeeService employeeService;
 
@@ -23,6 +24,12 @@ public class EmployeeOperationsController {
 	ResponseEntity<EmployeeEntityDTO> saveEmployee(@RequestBody EmployeeEntityDTO theEmployeeEntityDTO) {
 		EmployeeEntityDTO savedEmployeeEntityDTO = employeeService.saveEmployee(theEmployeeEntityDTO);
 		return new ResponseEntity<EmployeeEntityDTO>(savedEmployeeEntityDTO, HttpStatus.OK);
+	}
+
+	@GetMapping("/findAllEmployees")
+	ResponseEntity<List<EmployeeEntityDTO>> findAllEmployees() {
+		List<EmployeeEntityDTO> employees = employeeService.findAllEmployees();
+		return new ResponseEntity<List<EmployeeEntityDTO>>(employees, HttpStatus.OK);
 	}
 }
 
