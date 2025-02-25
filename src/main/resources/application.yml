@@ -1,0 +1,17 @@
+server:
+  port: 8080
+spring:
+  application:
+    name: employee-management-backend-app
+  datasource:
+    url: jdbc:mysql://${MYSQL_HOST:localhost}:3306/employee_management_system?useSSL=false&createDatabaseIfNotExist=true
+    username: root
+    password: Guruji123$
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        '[format_sql]': true
