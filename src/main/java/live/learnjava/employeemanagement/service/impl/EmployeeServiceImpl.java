@@ -3,7 +3,6 @@ package live.learnjava.employeemanagement.service.impl;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,12 +11,13 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.PagedModel;
-import org.springframework.hateoas.PagedModel.PageMetadata;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import live.learnjava.employeemanagement.bindings.CustomPagedModelDTO;
 import live.learnjava.employeemanagement.bindings.EmployeeEntityDTO;
 import live.learnjava.employeemanagement.entities.EmployeeEntity;
 import live.learnjava.employeemanagement.exceptions.ResourceNotFoundException;
@@ -29,6 +29,9 @@ public class EmployeeServiceImpl implements EmployeeService {
 
 	@Autowired
 	private EmployeeRepository employeeRepo;
+
+	@Autowired
+	private PagedResourcesAssembler<EmployeeEntityDTO> assembler;
 
 	@Override
 	public EmployeeEntityDTO saveEmployee(EmployeeEntityDTO theEmployeeEntityDTO) {
@@ -47,7 +50,7 @@ public class EmployeeServiceImpl implements EmployeeService {
 	}
 
 	@Override
-	public PagedModel<EntityModel<EmployeeEntityDTO>> findAllEmployees(int page, int size, String sortby,
+	public CustomPagedModelDTO<EntityModel<EmployeeEntityDTO>> findAllEmployees(int page, int size, String sortby,
 			String direction) {
 
 		// create sort object
@@ -57,34 +60,33 @@ public class EmployeeServiceImpl implements EmployeeService {
 		// create Pageable object
 		Pageable pageable = PageRequest.of(page, size, sort);
 
-		// pass Pageable to employeeRepo
-		Page<EmployeeEntity> employeePage = employeeRepo.findAll(pageable);
-		if (employeePage.isEmpty() == true) {
-			System.out.println("NO EMPLOYEE!");
-			System.out.println(pageable);
-			throw new ResourceNotFoundException("No employees", HttpStatus.NOT_FOUND.name().toString());
-		}
+		// create CustomPagedDTO from pagedObject
 
-		employeePage.stream().map(EmployeeEntity::getEmail).forEach(System.out::println);
+		/*
+		 * // pass Pageable to employeeRepo Page<EmployeeEntity> employeePage =
+		 * employeeRepo.findAll(pageable); if (employeePage.isEmpty() == true) {
+		 * System.out.println("NO EMPLOYEE!"); System.out.println(pageable); throw new
+		 * ResourceNotFoundException("No employees",
+		 * HttpStatus.NOT_FOUND.name().toString()); }
+		 * 
+		 * List<EmployeeEntityDTO> employeesDtosList = new
+		 * ArrayList<EmployeeEntityDTO>(); employeePage.stream().forEach((employee) -> {
+		 * EmployeeEntityDTO dto = new EmployeeEntityDTO();
+		 * BeanUtils.copyProperties(employee, dto); employeesDtosList.add(dto);
+		 * System.out.println(dto.getFirstName()); });
+		 */
 
-		List<EmployeeEntityDTO> employeesDtosList = new ArrayList<EmployeeEntityDTO>();
-		employeePage.stream().forEach((employee) -> {
-			EmployeeEntityDTO dto = new EmployeeEntityDTO();
-			BeanUtils.copyProperties(employee, dto);
-			employeesDtosList.add(dto);
-			System.out.println(dto.getFirstName());
-		});
+		Page<EmployeeEntityDTO> employeesDtosPage = employeeRepo.findAllEmployees(pageable);
 
-		Page<EmployeeEntityDTO> employeesDtosPage = new PageImpl<EmployeeEntityDTO>(employeesDtosList, pageable,
-				employeesDtosList.size());
+		PagedModel<EntityModel<EmployeeEntityDTO>> pagedModel = assembler.toModel(employeesDtosPage);
 
-		PagedModel<EntityModel<EmployeeEntityDTO>> entityDtoPagedModel = PagedModel.of(
-				employeesDtosPage.getContent().stream().map(employeeDto -> EntityModel.of(employeeDto))
-						.collect(Collectors.toList()),
-				new PageMetadata(employeesDtosPage.getSize(), employeesDtosPage.getNumber(),
-						employeesDtosPage.getTotalElements()));
+		CustomPagedModelDTO.PagedMetaData pagedMetaData = new CustomPagedModelDTO.PagedMetaData(
+				employeesDtosPage.isFirst(), employeesDtosPage.isLast());
 
-		return entityDtoPagedModel;
+		CustomPagedModelDTO<EntityModel<EmployeeEntityDTO>> customPagedModelDTO = new CustomPagedModelDTO<EntityModel<EmployeeEntityDTO>>(
+				pagedModel, pagedMetaData);
+
+		return customPagedModelDTO;
 
 	}
 

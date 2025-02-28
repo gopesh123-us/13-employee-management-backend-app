@@ -38,9 +38,12 @@ public class EmployeePagingOperationsController {
 		Pageable pageable = PageRequest.of(page, size, sort);
 
 		Page<EmployeeEntity> thePage = serviceRepo.getAllPagedEmployees(pageable);
+
 		PagedModel<EntityModel<EmployeeEntity>> pagedModel = assembler.toModel(thePage);
+
 		CustomPagedResponseDTO.PageMetaDataCustom metaData = new CustomPagedResponseDTO.PageMetaDataCustom(
 				thePage.isFirst(), thePage.isLast());
+
 		CustomPagedResponseDTO<EntityModel<EmployeeEntity>> customDTO = new CustomPagedResponseDTO<EntityModel<EmployeeEntity>>(
 				pagedModel, metaData);
 		// extend PagedModel. Create a wrapper class, and add an inner static class, a
