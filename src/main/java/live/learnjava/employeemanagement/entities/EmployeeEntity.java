@@ -1,6 +1,6 @@
 package live.learnjava.employeemanagement.entities;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -41,11 +41,11 @@ public class EmployeeEntity {
 
 	@CreationTimestamp()
 	@Column(insertable = true, updatable = false)
-	private LocalDate createdAt;
+	private LocalDateTime createdAt;
 
 	@UpdateTimestamp()
 	@Column(insertable = false, updatable = true)
-	private LocalDate updatedAt;
+	private LocalDateTime updatedAt;
 
 	@CreatedBy()
 	@Column(length = 30)

@@ -11,6 +11,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class EmployeeEntityDTO {
 
+	private Long id;
+
 	private String firstName;
 
 	private String lastName;
