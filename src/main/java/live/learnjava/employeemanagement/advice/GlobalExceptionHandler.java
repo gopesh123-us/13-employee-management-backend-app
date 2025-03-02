@@ -11,14 +11,16 @@ import live.learnjava.employeemanagement.exceptions.ResourceNotFoundException;
 public class GlobalExceptionHandler {
 	@ExceptionHandler(ResourceNotFoundException.class)
 	public ResponseEntity<ErrorResponse> handleResourceNotFoundException(ResourceNotFoundException ex) {
-		ErrorResponse errorResponse = new ErrorResponse(ex.getMessage(), ex.getErrorCode(),
-				HttpStatus.NOT_FOUND.value());
+		ErrorResponse errorResponse = new ErrorResponse.Builder().setMessage(ex.getMessage())
+				.setErrorCode(ex.getErrorCode()).setStatus(HttpStatus.NOT_FOUND.value()).build();
+
 		return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
 	}
 
 	@ExceptionHandler(Exception.class)
 	public ResponseEntity<ErrorResponse> handleAllExceptions(Exception ex) {
-		ErrorResponse error = new ErrorResponse(ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR.value());
-		return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
+		ErrorResponse errorResponse = new ErrorResponse.Builder().setMessage(ex.getMessage())
+				.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value()).build();
+		return new ResponseEntity<ErrorResponse>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
 	}
 }
